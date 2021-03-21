@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FullCSharpAssembly</name>
+    </assembly>
+    <members>
+        <member name="M:FullUnitTest.Unit.MergeUnitTest.VTP_Test1">
+            <summary>
+            Tests the algorithm 3. 
+            <para>Initial conditions : Instance initialized</para>
+            <para>Inputs : date  20/03/2021</para>
+            <para>Expected Result : Result is valid</para>
+            <para>TestID : FULL_Algo_003</para>
+            <para>Covered REQ : REQ-FULL-ALG-030, REQ-FULL-ALG-040</para>
+            </summary>
+        </member>
+        <member name="M:FullUnitTest.Unit.MergeUnitTest.VTP_Test2">
+            <summary>
+            Tests the algorithm 4. 
+            <para>Initial conditions : Instance initialized</para>
+            <para>Inputs : date  20/03/2021</para>
+            <para>Expected Result : Resut is valid</para>
+            <para>TestID : FULL_Algo_004</para>
+            <para>Covered REQ : REQ-FULL-ALG-050</para>
+            </summary>
+        </member>
+    </members>
+</doc>

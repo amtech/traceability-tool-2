@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Configuration file for the traceability tool. -->
+<TraceablitiyToolsConfiguration
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="app-config.xsd" version="2">
+
+	<!-- General configuration -->
+	<GeneralConfigurationSection>
+		<!-- The directory where the GIT checkout for all applications is present -->
+		<BaseGitDirectory>C:\</BaseGitDirectory>
+		<!-- Definition of the relative paths to different elements inside a project directory -->
+		<ProjectRelativePathConfiguration>
+			<!-- Relative path to the directory containing the specification documents -->
+			<ToSdFiles>Documentation/SD</ToSdFiles>
+			<!-- Relative path to the directory containing the ALM extracted files -->
+			<ToAlmExtractedFiles>ALM_Extract</ToAlmExtractedFiles>
+			<!-- Relative path to the directory containing the extracted requirement file (from SD) -->
+			<ToExtractedReqFiles>Documentation/SD_Reqs</ToExtractedReqFiles>
+			<!-- Relative path to the directory containing the VTP files -->
+			<ToVtpFiles>Documentation/VTP</ToVtpFiles>
+			<!-- Relative path to the directory containing the Traceability Matrix file -->
+			<ToTmFiles>Documentation/TR</ToTmFiles>
+		</ProjectRelativePathConfiguration>
+		<!-- The relative path from Git base directory and the directory containing the justification files -->
+		<RelativePathToJustificationFiles>Documentation/VTP</RelativePathToJustificationFiles>
+		<!-- The simple regular expression for selecting the unit test methods 
+			to consider for traceability -->
+		<UnitTestMethodSimpleRegexp>VTP_*</UnitTestMethodSimpleRegexp>
+	</GeneralConfigurationSection>
+
+	<!-- Configuration for application data -->
+	<ApplicationConfigurationSection default="a-sample-tool">
+
+		<!-- A Tool -->
+		<ApplicationConfiguration id="a-sample-tool">
+			<GeneralCharacteristics>
+				<DisplayName>Sample Tool</DisplayName>
+				<GitRelativeDirPath>sample-tool</GitRelativeDirPath>
+			</GeneralCharacteristics>
+			<SpecificationData>
+				<SdFileName>SampleTool-SD.docx</SdFileName>
+				<RequirementPrefixes>
+					<RequirementPrefix>SD-SAMPLE</RequirementPrefix>
+				</RequirementPrefixes>
+			</SpecificationData>
+			<CoverageData>
+				<JustificationFileName>justification.xlsx</JustificationFileName>
+				<AlmTestsCoverage isActive="false">
+					<AlmExtractedFile>VTP_SAMPLE.xlsm</AlmExtractedFile>
+				</AlmTestsCoverage>
+				<CucumberTestsCoverage isActive="false">
+					<FileSelectionFilter>
+						<RootDirectory>cucumber</RootDirectory>
+						<SearchInSubDirectories>true</SearchInSubDirectories>
+						<FilenameSimpleRegexp>*.feature</FilenameSimpleRegexp>
+					</FileSelectionFilter>
+				</CucumberTestsCoverage>
+				<CSharpUnitTestsCoverage isActive="false">
+					<FileSelectionFilter>
+						<RootDirectory>CSharp</RootDirectory>
+						<SearchInSubDirectories>true</SearchInSubDirectories>
+						<FilenameSimpleRegexp>*.xml</FilenameSimpleRegexp>
+					</FileSelectionFilter>
+					<MethodSimpleRegexp>VTP_*</MethodSimpleRegexp>
+				</CSharpUnitTestsCoverage>
+				<JavaUnitTestsCoverage isActive="false">
+					<FileSelectionFilter>
+						<RootDirectory>java</RootDirectory>
+						<SearchInSubDirectories>true</SearchInSubDirectories>
+						<FilenameSimpleRegexp>*.java</FilenameSimpleRegexp>
+					</FileSelectionFilter>
+					<MethodSimpleRegexp>VTP_*</MethodSimpleRegexp>
+				</JavaUnitTestsCoverage>
+			</CoverageData>
+			<OutputData>
+				<TargetVtpFileName>VTP-Sample.xlsx</TargetVtpFileName>
+				<TargetMatrixFileName>sample_matrix.xlsx</TargetMatrixFileName>
+				<TargetExtractedRequirementsFileName>sample_reqs.txt</TargetExtractedRequirementsFileName>
+			</OutputData>
+		</ApplicationConfiguration>
+
+	</ApplicationConfigurationSection>
+</TraceablitiyToolsConfiguration>

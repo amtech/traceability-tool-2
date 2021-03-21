@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Ant build script -->
+<project basedir="." default="traceabilitytoolgui" name="traceability-tool">
+
+	<!-- Load the properties -->
+	<property file="build.properties" prefix="config" />
+	
+	<!-- Name of the creator to add in jar manifest -->
+	<property name="creator-name" value="config.creator-name-in-jar-manifest"/>
+	
+	<!-- Define the directory where this ANT script file is located (stored in ${ant.file}) -->
+	<dirname file="${ant.file}" property="this-ant-file-directory" />
+	<!-- Deduce the workspace directory by appending relative path from this script file -->
+	<property name="general.workspace-dir" location="${this-ant-file-directory}${file.separator}.." />
+
+	<!-- Deduce the different general directories -->
+	<property name="general.src-dir" location="${general.workspace-dir}${file.separator}src" />
+	<property name="general.gen-dir" location="${general.workspace-dir}${file.separator}generation" />
+	<property name="general.lib-dir" location="${general.gen-dir}${file.separator}lib" />
+	<property name="general.temp-dir" location="${general.gen-dir}${file.separator}temp" />
+	<property name="general.resources-dir" location="${general.gen-dir}${file.separator}resources"/>
+	<property name="general.output-dir" location="${general.gen-dir}${file.separator}output" />
+	<property name="general.script-dir" location="${general.gen-dir}${file.separator}scripts" />
+	<property name="general.tools-script-dir" location="${general.script-dir}${file.separator}tools" />
+	<property name="general.config-dir" location="${general.gen-dir}${file.separator}config" />
+
+	<!-- List the jar names -->
+	<property name="general.lib.activation" value="activation-1.1.jar" />
+	
+	<!-- Used for JAXB-->
+	<property name="general.lib.log4j-core" value="log4j-core-2.13.3.jar" />
+	<property name="general.lib.log4j-api" value="log4j-api-2.13.3.jar" />
+	<property name="general.lib.hamcrest-core" value="hamcrest-core-1.3.jar" />
+	<property name="general.lib.jaxb-api" value="jaxb-api-2.3.0.jar" />
+	<property name="general.lib.jaxb-core" value="jaxb-core-2.2.11.jar" />
+	<property name="general.lib.jaxb-impl" value="jaxb-impl-2.3.0.jar" />
+	<property name="general.lib.poi" value="poi-4.1.2.jar" />
+	<property name="general.lib.poi-ooxml" value="poi-ooxml-4.1.2.jar" />
+	<property name="general.lib.poi-ooxml-schemas" value="poi-ooxml-schemas-4.1.2.jar" />
+	<property name="general.lib.xmlbeans" value="xmlbeans-3.1.0.jar" />
+	<property name="general.lib.com-collections" value="commons-collections4-4.4.jar" />
+	<property name="general.lib.com-compress" value="commons-compress-1.20.jar" />
+	<property name="general.lib.com-cli" value="commons-cli-1.4.jar" />
+
+	<!-- The sub-directory in the deployment directory where common jars are placed -->
+	<property name="general.common-jar-sub-dir" value="common-libs" />
+
+	<!-- The sub-directory in the deployment directory where application jars are placed -->
+	<property name="general.application-jar-sub-dir" value="application-libs" />
+
+	<!-- The sub-directory in the deployment directory where configuration files are placed -->
+	<property name="general.common-config-dir" value="config" />
+
+	<!-- The sub-directory in the deployment directory for the log files -->
+	<property name="general.common-log-dir" value="log"/>
+	
+	<!-- The token to replace by the actual filename in the log4j configuration file -->
+	<property name="general.common-log-filename-replace-token" value="#LOG_FILE_NAME#"/>
+	
+	<!-- Timestamp format (used in jar manifest files) -->
+	<property name="general.timestamp-format" value="MM/dd/yyyy hh:mm aa" />
+	
+	<!-- ############################
+	     ## Req Extraction Tool #####
+	     ############################ -->
+
+	<!-- Set the directories specific for Req Extractor tool -->
+	<property name="reqextractor.temp-dir" location="${general.temp-dir}${file.separator}reqextractor" />
+	<property name="reqextractor.compilation-dir" location="${reqextractor.temp-dir}${file.separator}compilation" />
+	<property name="reqextractor.jar-generation-dir" location="${reqextractor.temp-dir}${file.separator}jargeneration" />
+
+	<property name="reqextractor.distribution-dir" location="${reqextractor.temp-dir}${file.separator}distribution" />
+
+	<property name="reqextractor.distribution-common-jar-dir" location="${reqextractor.distribution-dir}${file.separator}${general.common-jar-sub-dir}" />
+	<property name="reqextractor.distribution-application-jar-dir" location="${reqextractor.distribution-dir}${file.separator}${general.application-jar-sub-dir}" />
+	<property name="reqextractor.distribution-config-dir" location="${reqextractor.distribution-dir}${file.separator}${general.common-config-dir}" />
+	<property name="reqextractor.distribution-log-dir" location="${reqextractor.distribution-dir}${file.separator}${general.common-log-dir}" />
+
+	<property name="reqextractor.output-dir" location="${general.output-dir}${file.separator}reqextractor" />
+	<property name="reqextractor.jar-name" value="${config.reqextractor-tool.jar-filename}" />
+	<property name="reqextractor.main-class" value="${config.reqextractor-tool.main-class}" />
+	<property name="reqextractor.script-name" value="${config.reqextractor-tool.launching-script}" />
+	<property name="reqextractor.source-log4j-config-file" location="${general.config-dir}${file.separator}log4j2.xml" />
+	<property name="reqextractor.target-log4j-config-file" location="${reqextractor.distribution-config-dir}${file.separator}${config.reqextractor-tool.logging-config-filename}" />
+	<property name="reqextractor.zip-file-name" value="${config.reqextractor-tool.generated-zip-filename}" />
+	<property name="reqextractor.zip-file" location="${reqextractor.output-dir}${file.separator}${reqextractor.zip-file-name}" />
+
+	<target name="reqextractor.init">
+		<!-- Create the temporary directories in case they do not exist -->
+		<mkdir dir="${reqextractor.compilation-dir}" />
+		<mkdir dir="${reqextractor.jar-generation-dir}" />
+		<mkdir dir="${reqextractor.distribution-dir}" />
+		<mkdir dir="${reqextractor.distribution-common-jar-dir}" />
+		<mkdir dir="${reqextractor.distribution-application-jar-dir}" />
+		<mkdir dir="${reqextractor.distribution-log-dir}" />
+		
+		<!-- Create the output directory in case it does not exist -->
+		<mkdir dir="${reqextractor.output-dir}" />
+
+		<echo>Deleting the potential contents of the temporary directory for ${config.reqextractor-tool.app-name}</echo>
+		<delete includeemptydirs="true" failonerror="true">
+			<fileset dir="${reqextractor.distribution-dir}" includes="**/*" />
+		</delete>
+
+		<echo>Deleting the potential contents of the temporary directory for ${config.reqextractor-tool.app-name}</echo>
+		<delete includeemptydirs="true" failonerror="true">
+			<fileset dir="${reqextractor.compilation-dir}" includes="**/*" />
+			<fileset dir="${reqextractor.jar-generation-dir}" includes="**/*" />
+		</delete>
+
+		<echo>Deleting the potential contents of the output directory for ${config.reqextractor-tool.app-name}</echo>
+		<delete includeemptydirs="true" failonerror="true">
+			<fileset dir="${reqextractor.output-dir}" includes="**/*">
+			</fileset>
+		</delete>
+	</target>
+
+	<!-- Compile the requirement extractor tool -->
+	<target name="reqextractor.compile" depends="reqextractor.init">
+		<echo>Building ${config.reqextractor-tool.app-name}...</echo>
+
+		<javac sourcepath="" srcdir="${general.src-dir}" destdir="${reqextractor.compilation-dir}" debug="true">
+
+			<include name="org/tools/doc/traceability/*.java" />
+			<include name="org/tools/doc/traceability/common/**" />
+			<exclude name="org/tools/doc/traceability/common/ui/**" />
+			<include name="org/tools/doc/traceability/reqextraction/**" />
+
+			<classpath>
+				<fileset dir="${general.lib-dir}">
+					<include name="${general.lib.log4j-core}" />
+					<include name="${general.lib.log4j-api}" />
+					<include name="${general.lib.hamcrest-core}" />
+					<include name="${general.lib.poi}" />
+					<include name="${general.lib.poi-ooxml}" />
+					<include name="${general.lib.poi-ooxml-schemas}" />
+					<include name="${general.lib.xmlbeans}" />
+					<include name="${general.lib.com-collections}" />
+					<include name="${general.lib.com-compress}" />
+					<include name="${general.lib.com-cli}" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- Generate the jar for the requirement extractor tool -->
+	<target name="reqextractor.generate-jar" depends="reqextractor.compile">
+		<tstamp>
+			<format property="generation-time" pattern="${general.timestamp-format}" />
+		</tstamp>
+		<jar destfile="${reqextractor.jar-generation-dir}${file.separator}${reqextractor.jar-name}">
+			<!-- Include all files from temporary directory -->
+			<fileset dir="${reqextractor.compilation-dir}" />
+
+			<!-- Included manifest -->
+			<manifest>
+				<attribute name="Created-By" value="${creator-name}" />
+				<attribute name="Implementation-Version" value="${config.reqextractor-tool.implementation-version}" />
+				<attribute name="Main-Class" value="${reqextractor.main-class}" />
+				<attribute name="Built-Date" value="${generation-time}" />
+				<!--attribute name="Class-Path" value="." /-->
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- Generate the distribution for requirement extractor tool -->
+	<target name="reqextractor.generate-distribution" depends="reqextractor.generate-jar">
+		<echo>Generating distribution for ${config.reqextractor-tool.app-name} ...</echo>
+
+		<!-- Copy the configuration files -->
+		<copy failonerror="true" overwrite="true" tofile="${reqextractor.target-log4j-config-file}" file="${reqextractor.source-log4j-config-file}" />
+
+		<!-- Replace tags in log4j config file -->
+		<replace file="${reqextractor.target-log4j-config-file}" token="${general.common-log-filename-replace-token}" value="${config.reqextractor-tool.logging-filename}"/>
+
+		<!-- Copy the tool jar -->
+		<copy failonerror="true" overwrite="true" todir="${reqextractor.distribution-application-jar-dir}" file="${reqextractor.jar-generation-dir}${file.separator}${reqextractor.jar-name}" />
+		<!-- Copy all the other jars -->
+		<copy failonerror="true" overwrite="true" todir="${reqextractor.distribution-common-jar-dir}">
+			<fileset dir="${general.lib-dir}">
+				<include name="${general.lib.log4j-core}" />
+				<include name="${general.lib.log4j-api}" />
+				<include name="${general.lib.hamcrest-core}" />
+				<include name="${general.lib.poi}" />
+				<include name="${general.lib.poi-ooxml}" />
+				<include name="${general.lib.poi-ooxml-schemas}" />
+				<include name="${general.lib.xmlbeans}" />
+				<include name="${general.lib.com-collections}" />
+				<include name="${general.lib.com-compress}" />
+				<include name="${general.lib.com-cli}" />
+			</fileset>
+		</copy>
+		<!-- Copy the tool script -->
+		<copy failonerror="true" overwrite="true" todir="${reqextractor.distribution-dir}" file="${general.tools-script-dir}${file.separator}${reqextractor.script-name}" />
+	</target>
+
+	<!-- Generate the installation zip for the requirement extractor tool -->
+	<target name="reqextractor" depends="reqextractor.generate-distribution">
+		<zip destfile="${reqextractor.zip-file}" basedir="${reqextractor.distribution-dir}" />
+		<echo>${config.reqextractor-tool.app-name} archive generated to ${reqextractor.zip-file} </echo>
+	</target>
+
+
+	<!-- ############################
+	     ## Traceability Tool Gui #####
+	     ############################ -->
+
+	<!-- Get properties from local configuration -->
+	<property name="traceability-tool-app-name" value="config.traceability-tool.app-name"/>
+
+	
+	<!-- Set the directories specific for Traceability Tool GUI -->
+	<property name="traceabilitytoolgui.temp-dir" location="${general.temp-dir}${file.separator}traceabilitytoolgui" />
+	<property name="traceabilitytoolgui.compilation-dir" location="${traceabilitytoolgui.temp-dir}${file.separator}compilation" />
+	<property name="traceabilitytoolgui.jar-generation-dir" location="${traceabilitytoolgui.temp-dir}${file.separator}jargeneration" />
+
+	<property name="traceabilitytoolgui.distribution-dir" location="${traceabilitytoolgui.temp-dir}${file.separator}distribution" />
+
+	<property name="traceabilitytoolgui.distribution-common-jar-dir" location="${traceabilitytoolgui.distribution-dir}${file.separator}${general.common-jar-sub-dir}" />
+	<property name="traceabilitytoolgui.distribution-application-jar-dir" location="${traceabilitytoolgui.distribution-dir}${file.separator}${general.application-jar-sub-dir}" />
+	<property name="traceabilitytoolgui.distribution-config-dir" location="${traceabilitytoolgui.distribution-dir}${file.separator}${general.common-config-dir}" />
+	<property name="traceabilitytoolgui.distribution-log-dir" location="${traceabilitytoolgui.distribution-dir}${file.separator}${general.common-log-dir}" />
+
+	<property name="traceabilitytoolgui.output-dir" location="${general.output-dir}${file.separator}traceabilitytoolgui" />
+	<property name="traceabilitytoolgui.jar-name" value="${config.traceability-tool.jar-filename}" />
+	<property name="traceabilitytoolgui.main-class" value="${config.traceability-tool.main-class}" />
+	<property name="traceabilitytoolgui.script-name" value="${config.traceability-tool.launching-script}" />
+	<property name="traceabilitytoolgui.source-log4j-config-file" location="${general.config-dir}${file.separator}log4j2.xml" />
+	<property name="traceabilitytoolgui.target-log4j-config-file" location="${traceabilitytoolgui.distribution-config-dir}${file.separator}${config.traceability-tool.logging-config-filename}" />
+	<property name="traceabilitytoolgui.source-app-config-file" location="${general.config-dir}${file.separator}app-config.xml" />
+	<property name="traceabilitytoolgui.target-app-config-file" location="${traceabilitytoolgui.distribution-config-dir}${file.separator}app-config.xml" />
+	<property name="traceabilitytoolgui.zip-file-name" value="${config.traceability-tool.generated-zip-filename}" />
+	<property name="traceabilitytoolgui.zip-file" location="${traceabilitytoolgui.output-dir}${file.separator}${traceabilitytoolgui.zip-file-name}" />
+
+	<target name="traceabilitytoolgui.init">		
+		<!-- Create the temporary directories in case they do not exist -->
+		<mkdir dir="${traceabilitytoolgui.compilation-dir}" />
+		<mkdir dir="${traceabilitytoolgui.jar-generation-dir}" />
+		<mkdir dir="${traceabilitytoolgui.distribution-dir}" />
+		<mkdir dir="${traceabilitytoolgui.distribution-common-jar-dir}" />
+		<mkdir dir="${traceabilitytoolgui.distribution-application-jar-dir}" />
+		<mkdir dir="${traceabilitytoolgui.distribution-config-dir}" />
+		<mkdir dir="${traceabilitytoolgui.distribution-log-dir}" />
+
+		<!-- Create the output directory in case it does not exist -->
+		<mkdir dir="${traceabilitytoolgui.output-dir}" />
+
+		<echo>Deleting the potential contents of the distribution directory for ${traceability-tool-app-name}</echo>
+		<delete includeemptydirs="true" failonerror="true">
+			<fileset dir="${traceabilitytoolgui.compilation-dir}" includes="**/*" />
+			<fileset dir="${traceabilitytoolgui.jar-generation-dir}" includes="**/*" />
+		</delete>
+
+		<echo>Deleting the potential contents of the temporary directory for ${traceability-tool-app-name}</echo>
+		<delete includeemptydirs="true" failonerror="true">
+			<fileset dir="${traceabilitytoolgui.distribution-dir}" includes="**/*" />
+		</delete>
+
+		<echo>Deleting the potential contents of the output directory for ${traceability-tool-app-name}</echo>
+		<delete includeemptydirs="true" failonerror="true">
+			<fileset dir="${traceabilitytoolgui.output-dir}" includes="**/*">
+			</fileset>
+		</delete>
+	</target>
+	
+	<!-- Compile the test coverage tool -->
+	<target name="traceabilitytoolgui.compile" depends="traceabilitytoolgui.init">
+		<echo>Building ${traceability-tool-app-name}...</echo>
+
+		<javac srcdir="${general.src-dir}" destdir="${traceabilitytoolgui.compilation-dir}" debug="true">
+			<classpath>
+				<fileset dir="${general.lib-dir}">
+					<include name="${general.lib.log4j-core}" />
+					<include name="${general.lib.log4j-api}" />
+					<include name="${general.lib.hamcrest-core}" />
+					<include name="${general.lib.activation}" />
+					<include name="${general.lib.jaxb-api}" />
+					<include name="${general.lib.jaxb-core}" />
+					<include name="${general.lib.jaxb-impl}" />
+					<include name="${general.lib.poi}" />
+					<include name="${general.lib.poi-ooxml}" />
+					<include name="${general.lib.poi-ooxml-schemas}" />
+					<include name="${general.lib.xmlbeans}" />
+					<include name="${general.lib.com-collections}" />
+					<include name="${general.lib.com-compress}" />
+					<include name="${general.lib.com-cli}" />
+				</fileset>
+			</classpath>
+		</javac>
+	</target>
+
+	<!-- Generate the jar for the test coverage tool -->
+	<target name="traceabilitytoolgui.generate-jar" depends="traceabilitytoolgui.compile">
+		<tstamp>
+			<format property="generation-time" pattern="${general.timestamp-format}" />
+		</tstamp>
+		<jar destfile="${traceabilitytoolgui.jar-generation-dir}${file.separator}${traceabilitytoolgui.jar-name}">
+			<!-- Include all files from temporary directory -->
+			<fileset dir="${traceabilitytoolgui.compilation-dir}" />
+
+			<!-- Include the xsd file -->
+			<fileset dir="${general.config-dir}">
+				<include name="app-config.xsd" />
+			</fileset>
+			
+			<!-- Include the resources -->
+			<fileset dir="${general.resources-dir}">
+				<include name="traceability-tool-logo.gif"/>
+			</fileset>
+	
+			<!-- Included manifest -->
+			<manifest>
+				<attribute name="Created-By" value="${creator-name}" />
+				<attribute name="Implementation-Version" value="${config.traceability-tool.implementation-version}" />
+				<attribute name="Main-Class" value="${traceabilitytoolgui.main-class}" />
+				<attribute name="Built-Date" value="${generation-time}" />
+				<!--attribute name="Class-Path" value="." /-->
+			</manifest>
+		</jar>
+	</target>
+
+	<!-- Generate the distribution for traceability tool -->
+	<target name="traceabilitytoolgui.generate-distribution" depends="traceabilitytoolgui.generate-jar">
+		<echo>Generating distribution for ${traceability-tool-app-name} ...</echo>
+
+		<!-- Copy the configuration files -->
+		<copy failonerror="true" overwrite="true" tofile="${traceabilitytoolgui.target-log4j-config-file}" file="${traceabilitytoolgui.source-log4j-config-file}" />		
+		<copy failonerror="true" overwrite="true" tofile="${traceabilitytoolgui.target-app-config-file}" file="${traceabilitytoolgui.source-app-config-file}" />
+
+		<!-- Replace tags in log4j config file -->
+		<replace file="${traceabilitytoolgui.target-log4j-config-file}" token="${general.common-log-filename-replace-token}" value="${config.traceability-tool.logging-filename}"/>
+		
+		<!-- Copy the tool jar -->
+		<copy failonerror="true" overwrite="true" todir="${traceabilitytoolgui.distribution-application-jar-dir}" file="${traceabilitytoolgui.jar-generation-dir}${file.separator}${traceabilitytoolgui.jar-name}" />
+
+		<!-- Copy all the other jars -->
+		<copy failonerror="true" overwrite="true" todir="${traceabilitytoolgui.distribution-common-jar-dir}">
+			<fileset dir="${general.lib-dir}">
+				<include name="${general.lib.log4j-core}" />
+				<include name="${general.lib.log4j-api}" />
+				<include name="${general.lib.hamcrest-core}" />
+				<include name="${general.lib.activation}" />
+				<include name="${general.lib.jaxb-api}" />
+				<include name="${general.lib.jaxb-core}" />
+				<include name="${general.lib.jaxb-impl}" />
+				<include name="${general.lib.poi}" />
+				<include name="${general.lib.poi-ooxml}" />
+				<include name="${general.lib.poi-ooxml-schemas}" />
+				<include name="${general.lib.xmlbeans}" />
+				<include name="${general.lib.com-collections}" />
+				<include name="${general.lib.com-compress}" />
+				<include name="${general.lib.com-cli}" />
+			</fileset>
+		</copy>
+		<!-- Copy the tool script -->
+		<copy failonerror="true" overwrite="true" todir="${traceabilitytoolgui.distribution-dir}" file="${general.tools-script-dir}${file.separator}${traceabilitytoolgui.script-name}">
+			<fileset dir="${general.script-dir}">
+				<include name="traceability-tool-gui.cmd" />
+			</fileset>
+		</copy>
+	</target>
+
+	<!-- Generate the installation zip for the test coverage tool -->
+	<target name="traceabilitytoolgui" depends="traceabilitytoolgui.generate-distribution">
+		<zip destfile="${traceabilitytoolgui.zip-file}" basedir="${traceabilitytoolgui.distribution-dir}" />
+		<echo>${traceability-tool-app-name} archive generated to ${traceabilitytoolgui.zip-file} </echo>
+	</target>
+
+	<!-- Task for general cleaning -->
+	<target name="all.clean">
+		<echo>General cleaning...</echo>
+		<delete includeemptydirs="true" failonerror="true" dir="${general.temp-dir}" />
+		<delete includeemptydirs="true" failonerror="true">
+			<fileset dir="${general.output-dir}" includes="**/*">
+			</fileset>
+		</delete>
+	</target>
+
+	<target name="all" depends="all.clean, reqextractor, traceabilitytoolgui">
+	</target>
+
+</project>

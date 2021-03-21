@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Properties>
+    <Property name="filename">log/#LOG_FILE_NAME#</Property>
+  </Properties>
+  <Appenders>
+    <Console name="CONSOLE" target="SYSTEM_OUT">
+      <PatternLayout pattern="# %5p on %d{dd/MM/yyyy 'at' HH:mm:ss,SSS} from %c{1} line %L #%n%m%n"/>
+    </Console>
+    <File name="APP" fileName="${filename}">
+      <PatternLayout pattern="# %5p on %d{dd/MM/yyyy 'at' HH:mm:ss,SSS} from %c{1} line %L #%n%m%n"/>
+    </File>
+    <Async name="ASYNC">
+      <AppenderRef ref="CONSOLE"/>
+      <AppenderRef ref="APP"/>
+    </Async>
+  </Appenders>
+  <Loggers>
+    <Root level="debug">
+      <AppenderRef ref="ASYNC"/>
+    </Root>
+  </Loggers>
+</Configuration>

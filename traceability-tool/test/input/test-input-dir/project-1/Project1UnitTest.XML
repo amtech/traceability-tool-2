@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Project1UnitTest</name>
+    </assembly>
+    <members>
+        <member name="T:Project1UnitTest.Controller.NotTakentIntoAccount">
+            <summary>
+            This method will be ignored as it does not start with VTP.
+            </summary>
+        </member>
+        <member name="M:Project1UnitTest.Unit.MergeUnitTest.VTP_TestMergeCompleted">
+            <summary>
+            Test description.
+            Additional test description.
+            <para>Initial conditions : Blah</para>
+            <para>Inputs : blah</para>
+            <para>Expected Result : All goes fine.</para>
+            <para>TestID : PROJ1_TST_001</para>
+            <para>Covered REQ : SD-TOTO-MERGE-001, SD-TOTO-MERGE-060</para>
+            </summary>
+        </member>
+        <member name="M:Project1UnitTest.Unit.MergeUnitTest.VTP_TestMergeNotCompleted">
+            <summary>
+            Test description for not completed.
+            Additional test description.
+            <para>Initial conditions : Foo</para>
+            <para>Inputs : foo</para>
+            <para>Expected Result : All goes wrong.</para>
+            <para>TestID : PROJ1_TST_002</para>
+            <para>Covered REQ : SD-TOTO-MERGE-020</para>
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="TraceabilityToolConfiguration"
+	attributeFormDefault="unqualified" elementFormDefault="qualified"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!-- The type for valid display name -->
+	<xs:simpleType name="DisplayNameType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Z][A-Za-z0-9 +-]*" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for paths -->
+	<xs:simpleType name="DirectoryPathType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for simple regular expression (where only ? and * are managed 
+		as special characters) -->
+	<xs:simpleType name="SimpleRegexp">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for valid GIT relative directory path -->
+	<xs:simpleType name="GitRelativeDirPathType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[a-zA-Z][a-zA-Z0-9_/-]*" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for valid SD name -->
+	<xs:simpleType name="SdFileNameType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value=".*.docx" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for valid SD requirement prefix -->
+	<xs:simpleType name="RequirementPrefixType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[A-Z0-9-]*" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for valid ALM extracted filename -->
+	<xs:simpleType name="AlmExtractedFileNameType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value=".+.xlsm" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for valid justification filename (can be empty) -->
+	<xs:simpleType name="JustificationFileNameType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="|.*.xls.*" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for valid target VTP filename -->
+	<xs:simpleType name="TargetVtpFileNameType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value=".*.xlsx" />
+		</xs:restriction>
+	</xs:simpleType>
+
+
+	<!-- The type for valid target matrix filename -->
+	<xs:simpleType name="TargetMatrixFileNameType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value=".*.xlsx" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for valid target extracted requirement filename -->
+	<xs:simpleType name="TargetExtractedRequirementsFileNameType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[a-z][a-z_]*.txt" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- The type for the application identifiers -->
+	<xs:simpleType name="ApplicationIdType">
+		<xs:restriction base="xs:string">
+			<xs:pattern value="[a-z][a-z0-9-]*" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- Type for file search filter -->
+	<xs:complexType name="FileSearchFilterType">
+		<xs:sequence>
+			<!-- Relative path, from the application GIT directory, of the root directory 
+				where to search for files -->
+			<xs:element name="RootDirectory" minOccurs="1" maxOccurs="1"
+				type="DirectoryPathType" />
+			<!-- Whether the search shall go recursively in sub-directories or not -->
+			<xs:element name="SearchInSubDirectories" minOccurs="1"
+				maxOccurs="1" type="xs:boolean" />
+			<!-- The simple regexp to select filenames -->
+			<xs:element name="FilenameSimpleRegexp" minOccurs="1"
+				maxOccurs="1" type="SimpleRegexp" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Configuration for ALM tests coverage -->
+	<xs:complexType name="AlmTestsCoverageType">
+		<xs:sequence>
+			<!-- The name of the .xlsm file containg the manual tests extracted from 
+				ALM. It shall be in the ALM_extract sub-directory of the application project. -->
+			<xs:element name="AlmExtractedFile" minOccurs="1"
+				maxOccurs="1" type="AlmExtractedFileNameType" />
+		</xs:sequence>
+		<xs:attribute name="isActive" use="required" type="xs:boolean" />
+	</xs:complexType>
+
+	<!-- Configuration for cucumber tests coverage -->
+	<xs:complexType name="CucumberTestsCoverageType">
+		<xs:sequence>
+			<xs:element name="FileSelectionFilter" minOccurs="1"
+				maxOccurs="1" type="FileSearchFilterType" />
+		</xs:sequence>
+		<xs:attribute name="isActive" use="required" type="xs:boolean" />
+	</xs:complexType>
+
+	<!-- Configuration for C# unit tests coverage -->
+	<xs:complexType name="CSharpUnitTestsCoverageType">
+		<xs:sequence>
+			<xs:element name="FileSelectionFilter" minOccurs="1"
+				maxOccurs="1" type="FileSearchFilterType" />
+			<xs:element name="MethodSimpleRegexp" minOccurs="1"
+				maxOccurs="1" type="SimpleRegexp" />
+		</xs:sequence>
+		<xs:attribute name="isActive" use="required" type="xs:boolean" />
+	</xs:complexType>
+
+	<!-- Configuration for java unit tests coverage -->
+	<xs:complexType name="JavaUnitTestsCoverageType">
+		<xs:sequence>
+			<xs:element name="FileSelectionFilter" minOccurs="1"
+				maxOccurs="1" type="FileSearchFilterType" />
+			<xs:element name="MethodSimpleRegexp" minOccurs="1"
+				maxOccurs="1" type="SimpleRegexp" />
+		</xs:sequence>
+		<xs:attribute name="isActive" use="required" type="xs:boolean" />
+	</xs:complexType>
+
+	<!-- The node for defining a specific application -->
+	<xs:complexType name="ApplicationConfigurationType">
+		<xs:sequence>
+			<xs:element name="GeneralCharacteristics" minOccurs="1"
+				maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="DisplayName" minOccurs="1" maxOccurs="1"
+							type="DisplayNameType" />
+						<xs:element name="GitRelativeDirPath" minOccurs="1"
+							maxOccurs="1" type="GitRelativeDirPathType" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="SpecificationData" minOccurs="1"
+				maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="SdFileName" minOccurs="1" maxOccurs="1"
+							type="SdFileNameType" />
+						<xs:element name="RequirementPrefixes" minOccurs="1"
+							maxOccurs="1">
+							<xs:complexType>
+								<xs:sequence>
+									<xs:element name="RequirementPrefix" minOccurs="1"
+										maxOccurs="unbounded" type="RequirementPrefixType" />
+								</xs:sequence>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="CoverageData" minOccurs="1" maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<!-- The name of the justification file to use (located in the Documentation 
+							project in the VTP sub-directory) -->
+						<xs:element name="JustificationFileName" minOccurs="1"
+							maxOccurs="1" type="JustificationFileNameType" />
+						<!-- Configuration of coverage through ALM tests -->
+						<xs:element name="AlmTestsCoverage" minOccurs="1"
+							maxOccurs="1" type="AlmTestsCoverageType" />
+						<!-- Configuration of coverage through cucumber tests -->
+						<xs:element name="CucumberTestsCoverage" minOccurs="1"
+							maxOccurs="1" type="CucumberTestsCoverageType" />
+						<!-- Configuration of coverage through C# unit tests -->
+						<xs:element name="CSharpUnitTestsCoverage" minOccurs="1"
+							maxOccurs="1" type="CSharpUnitTestsCoverageType" />
+						<!-- Configuration of coverage through java unit tests -->
+						<xs:element name="JavaUnitTestsCoverage" minOccurs="1"
+							maxOccurs="1" type="JavaUnitTestsCoverageType" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="OutputData" minOccurs="1" maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="TargetVtpFileName" minOccurs="1"
+							maxOccurs="1" type="TargetVtpFileNameType" />
+						<xs:element name="TargetMatrixFileName" minOccurs="1"
+							maxOccurs="1" type="TargetMatrixFileNameType" />
+						<xs:element name="TargetExtractedRequirementsFileName"
+							minOccurs="1" maxOccurs="1" type="TargetExtractedRequirementsFileNameType" />
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="id" type="ApplicationIdType" use="required" />
+	</xs:complexType>
+
+	<!-- The node for the application configuration section -->
+	<xs:complexType name="ApplicationConfigurationSectionType">
+		<xs:sequence>
+			<xs:element name="ApplicationConfiguration" minOccurs="1"
+				maxOccurs="unbounded" type="ApplicationConfigurationType" />
+		</xs:sequence>
+		<!-- Define which application shall be selected by default. It shall correspond 
+			to the id of the ApplicationConfiguration -->
+		<xs:attribute name="default" type="ApplicationIdType"
+			use="required" />
+	</xs:complexType>
+
+	<!-- The node describing the relative path to elements inside a project 
+		directory -->
+	<xs:complexType name="ProjectRelativePathConfigurationType">
+		<xs:sequence>
+			<!-- The relative path to the SD files directory -->
+			<xs:element name="ToSdFiles" minOccurs="1" maxOccurs="1"
+				type="GitRelativeDirPathType" />
+			<!-- The relative path to the ALM extract files directory -->
+			<xs:element name="ToAlmExtractedFiles" minOccurs="1"
+				maxOccurs="1" type="GitRelativeDirPathType" />
+			<!-- The relative path to the extracted requirements files directory -->
+			<xs:element name="ToExtractedReqFiles" minOccurs="1"
+				maxOccurs="1" type="GitRelativeDirPathType" />
+			<!-- The relative path to the VTP files -->
+			<xs:element name="ToVtpFiles" minOccurs="1" maxOccurs="1"
+				type="GitRelativeDirPathType" />
+			<!-- The relative path to the traceabilty matrix files -->
+			<xs:element name="ToTmFiles" minOccurs="1" maxOccurs="1"
+				type="GitRelativeDirPathType" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- The node for the general configuration section -->
+	<xs:complexType name="GeneralConfigurationSectionType">
+		<xs:sequence>
+			<!-- The default value for the base GIT directory -->
+			<xs:element name="BaseGitDirectory" minOccurs="1"
+				maxOccurs="1" type="xs:string" />
+			<!-- Configuration of the relative path to elements inside projects -->
+			<xs:element name="ProjectRelativePathConfiguration"
+				minOccurs="1" maxOccurs="1" type="ProjectRelativePathConfigurationType" />
+			<!-- Relative path from Git base directory to justification files -->
+			<xs:element name="RelativePathToJustificationFiles"
+				minOccurs="1" maxOccurs="1" type="GitRelativeDirPathType" />
+			<!-- The default value for unit test method simple regexep -->
+			<xs:element name="UnitTestMethodSimpleRegexp" minOccurs="1"
+				maxOccurs="1" type="SimpleRegexp" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- The main element -->
+	<xs:element name="TraceablitiyToolsConfiguration">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="GeneralConfigurationSection" minOccurs="1"
+					maxOccurs="1" type="GeneralConfigurationSectionType" />
+				<xs:element name="ApplicationConfigurationSection"
+					minOccurs="1" maxOccurs="1" type="ApplicationConfigurationSectionType" />
+			</xs:sequence>
+			<xs:attribute name="version" type="xs:integer" use="required" />
+		</xs:complexType>
+	</xs:element>
+
+</xs:schema>

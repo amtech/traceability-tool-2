@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/traceability-tool/src/org/tools/doc/traceability/reqextraction/RequirementExtractorCmdLineTool.java"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="1"/>
+</listAttribute>
+<booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
+<stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.tools.doc.traceability.reqextraction.RequirementExtractorCmdLineTool"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-i i1 i2 i3 -o o1 -r r1 r2 r3"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="traceability-tool"/>
+</launchConfiguration>
