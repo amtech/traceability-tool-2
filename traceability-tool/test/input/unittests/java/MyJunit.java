@@ -148,7 +148,7 @@ public class TraceabilityManagerTester extends AbstractTester {
 	 *  @coveredReqs "SD-OBS-BR-060, SD-OBS-BR-070"
 	 */
 	@Test
-	public void VTP_testFileImportation() {
+	void VTP_testFileImportation() throws Exception {
 
 		File template4Mapping = getTestInputFile("MappingTemplate4.xml");
 		File inputFile = getTestInputFile("input_tu.xlsx");

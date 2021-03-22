@@ -53,6 +53,7 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
      * If it matches, there are the following groups captured:
      * <ol>
      * <li>Javadco contents
+     * <li>Potential "public " modifier for JUnit method
      * <li>Method name
      * <li>The rest of the class contents after the opening curly brace.
      * </ol>
@@ -61,16 +62,16 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
     private static final String JAVADOC_METHOD_REGEXP = //
             ".*?" // Anything (reluctant)
                     + "\\/\\*\\*" // Opening javadoc comment
-                    + "([^/]+)" // Contents of the javadoc comment
+                    + "(.+?)" // Contents of the javadoc comment (reluctant)
                     + "\\*\\/" // Closing of javadoc comment
                     + "[\\s\\n]*" // Further spaces and line returns
                     + "@Test" // The JUnit annotation for testing method
                     + "[\\s\\n]*" // Further spaces or line breaks
-                    + "public\\s\\s*void\\s\\s*([A-Za-z_][A-Za-z0-9_]*)\\(\\s*\\)"
+                    + "(public\\s)?\\s*void\\s\\s*([A-Za-z_][A-Za-z0-9_]*)\\(\\s*\\)[^{]*"
                     // Standard JUnit method signature
-                    + "\\s*\\{" // Opening method curly brace
+                    + "\\{" // Opening method curly brace
                     + "(.*)"; // Remaining part
-
+    
     /**
      * Regexp to extract the useful part of a javadoc line, i.e. that gets rid
      * of leading spaces and star.
@@ -288,8 +289,8 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
         JUnitMethodData lJunitMethodData;
         while (lJunitMethodMatcher.matches()) {
             String lJavadocContents = lJunitMethodMatcher.group(1);
-            String lMethodName = lJunitMethodMatcher.group(2);
-            String lRemainingClassContents = lJunitMethodMatcher.group(3);
+            String lMethodName = lJunitMethodMatcher.group(3);
+            String lRemainingClassContents = lJunitMethodMatcher.group(4);
 
             List<String> lCleanedJavadocLines = new ArrayList<String>();
 
