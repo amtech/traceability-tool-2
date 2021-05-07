@@ -17,12 +17,12 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-
 import org.tools.doc.traceability.common.Constants;
 import org.tools.doc.traceability.common.exceptions.AbstractTraceabilityException;
 import org.tools.doc.traceability.common.exceptions.ExecutorExecutionException;
@@ -309,10 +309,15 @@ public class RequirementExtractor extends AbstractExecutor<RequirementExtractorR
 
         if (lFis != null) {
             XWPFDocument lDocx = null;
+
             try {
+                // Deactivate the protection against zip bombing
+                ZipSecureFile.setMinInflateRatio(0);
+
+                // Open the document
                 lDocx = new XWPFDocument(lFis);
             } catch (IOException e) {
-                LOGGER.error("Error opening file " + pInputFile.getAbsolutePath());
+                LOGGER.error("Error opening file " + pInputFile.getAbsolutePath() + " : " + e.getMessage());
             } finally {
                 // Try and close the stream
                 try {
