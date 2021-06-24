@@ -6,7 +6,6 @@ package org.tools.doc.traceability.manager.cmdline;
 import org.apache.commons.cli.CommandLine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.tools.doc.traceability.analyzer.almcoverage.AlmCoverageAnalyzer;
 import org.tools.doc.traceability.common.cmdline.AbstractCommandLineTool;
 import org.tools.doc.traceability.common.cmdline.CommandLineArguments;
 import org.tools.doc.traceability.common.exceptions.CommandLineArgumentException;

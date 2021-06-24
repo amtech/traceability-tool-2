@@ -123,8 +123,7 @@ public class GherkinParser {
         }
 
         // Manage the potential additional description or comments attached to
-        // the
-        // Feature line
+        // the Feature line
         while (lLineIdx < lMaxLineIdx) {
             lLine = lGherkinLines.get(lLineIdx);
             if (lLine.getType() == GherkinLineType.Description) {
@@ -1314,6 +1313,10 @@ public class GherkinParser {
         // Go on with next line as long as we find elements that can occur
         // "under" the DataTable element
         boolean lReadNextLine = true;
+        // Decrement before the loop as the index is incremented at the
+        // beginning of it and we are already on the first line to take into
+        // account
+        lIdx--;
 
         while (lReadNextLine) {
             lIdx++;

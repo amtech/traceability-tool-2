@@ -53,7 +53,7 @@ public class GherkinStepBreakdownManager {
 
         boolean lIsInActionPhase = true;
         GherkinStepType lStepType;
-        GherkinStepType lLastProcessedStepType = null;
+        boolean lIsInThenAndSequence = false;
         TestingScenarioPart lTestingScenarioPart;
         int lPartNumber = 1;
         String lPartIdentifier;
@@ -63,6 +63,7 @@ public class GherkinStepBreakdownManager {
         for (AbstractGherkinStep lStep : pGherkinSteps) {
             lStepType = lStep.getStepType();
             if (lStepType == GherkinStepType.Then) {
+                lIsInThenAndSequence = true;
                 // We first need to check if this step refers to SD requirements
                 // or not
                 Matcher lMatcher = reqStepPattern.matcher(lStep.getStepText());
@@ -79,9 +80,11 @@ public class GherkinStepBreakdownManager {
 
                 lIsInActionPhase = false;
             } else if (lStepType == GherkinStepType.And) {
-                // If previous step type was a Then, then include it in the
-                // expected result
-                if (GherkinStepType.Then == lLastProcessedStepType) {
+                // This instruction can be part of the Then sequence so we let
+                // lIsInThenAndSequence as it is
+
+                // If we are still in a Then sequence, we include this And in it
+                if (lIsInThenAndSequence) {
                     // We first need to check if this step refers to SD
                     // requirements
                     // or not
@@ -104,6 +107,10 @@ public class GherkinStepBreakdownManager {
                     lIsInActionPhase = true;
                 }
             } else {
+                // If not a Then or a And, we are not in the Then sequence
+                // anymore
+                lIsInThenAndSequence = false;
+
                 // We must handle the "And" steps following a Then
 
                 if (!lIsInActionPhase) {
@@ -131,9 +138,6 @@ public class GherkinStepBreakdownManager {
 
                 lActionSteps.add(lStep);
             }
-
-            // Memorize the type of the lattest step
-            lLastProcessedStepType = lStepType;
         }
 
         // Create a last part if one of the lists is not empty
