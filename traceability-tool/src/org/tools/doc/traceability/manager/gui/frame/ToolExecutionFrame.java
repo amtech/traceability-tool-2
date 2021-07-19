@@ -42,14 +42,20 @@ public class ToolExecutionFrame extends AbstractTraceabilityToolFrame {
      * The action associated with the close button of the execution panel.
      */
     private final GuiAction closeFrameAction;
+    
+    /**
+     * The action to copy the status to clipboard.
+     */
+    private final GuiAction copyStatusToClipboardAction;
 
     /**
      * Constructor.
      * 
      * @param pParentFrame      the parent frame.
      * @param pCloseFrameAction the action to close the frame.
+     * @param pCopyStatusToClipboardAction the action to copy the status to clipboard
      */
-    public ToolExecutionFrame(final JFrame pParentFrame, final GuiAction pCloseFrameAction) {
+    public ToolExecutionFrame(final JFrame pParentFrame, final GuiAction pCloseFrameAction, final GuiAction pCopyStatusToClipboardAction) {
         super(GuiConstants.PROGRESS_DIALOG_FRAME_TITLE);
 
         // Prevent closing with the cross icon
@@ -62,8 +68,9 @@ public class ToolExecutionFrame extends AbstractTraceabilityToolFrame {
         setMinimumSize(lPreferredDim);
 
         closeFrameAction = pCloseFrameAction;
+        copyStatusToClipboardAction = pCopyStatusToClipboardAction;
 
-        executionPanel = new ExecutionPanel(closeFrameAction);
+        executionPanel = new ExecutionPanel(closeFrameAction, copyStatusToClipboardAction);
         executionPanel.build();
 
         getContentPane().add(executionPanel);

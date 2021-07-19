@@ -41,26 +41,39 @@ public class ExecutionPanel extends AbstractPanel {
     private ResultPanel resultPanel;
 
     /**
+     * The button to copy the status to clipboard.
+     */
+    private JButton copyStatusToClipboardButton;
+    
+    /**
      * The close button.
      */
     private JButton closeButton;
-
+    
     /**
      * The action associated with the close button.
      */
     private final GuiAction closeAction;
 
     /**
+     * The action to copy the status to clipboard.
+     */
+    private final GuiAction copyStatusToClipboardAction;
+
+    /**
      * Constructor.
      * 
      * @param pCloseAction the close action.
+     * @param pCopyStatusToClipboardAction the action to copy the status to clipboard.
      */
-    public ExecutionPanel(final GuiAction pCloseAction) {
+    public ExecutionPanel(final GuiAction pCloseAction, final GuiAction pCopyStatusToClipboardAction) {
         titleLabel = null;
         progressPanel = null;
         resultPanel = null;
+        copyStatusToClipboardButton = null;
         closeButton = null;
         closeAction = pCloseAction;
+        copyStatusToClipboardAction = pCopyStatusToClipboardAction;
     }
 
     /**
@@ -124,15 +137,17 @@ public class ExecutionPanel extends AbstractPanel {
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         closeButton = new JButton(closeAction);
+        copyStatusToClipboardButton = new JButton(copyStatusToClipboardAction);
         progressPanel = new ProgressPanel();
         progressPanel.build();
         resultPanel = new ResultPanel();
         resultPanel.build();
 
-        addComponent(titleLabel, 0, 0, 1, 1, 100, 0, ANCHOR_CENTER, FILL_HORIZONTAL, 1, 1, 1, 1);
-        addComponent(progressPanel, 0, 1, 1, 1, 100, 0, ANCHOR_CENTER, FILL_BOTH, 1, 1, 1, 1);
-        addComponent(resultPanel, 0, 2, 1, 1, 100, 90, ANCHOR_CENTER, FILL_BOTH, 1, 1, 1, 1);
-        addComponent(closeButton, 0, 3, 1, 1, 10, 0, ANCHOR_CENTER, FILL_NONE, 5, 10, 5, 10);
+        addComponent(titleLabel, 0, 0, 2, 1, 100, 0, ANCHOR_CENTER, FILL_HORIZONTAL, 1, 1, 1, 1);
+        addComponent(progressPanel, 0, 1, 2, 1, 100, 0, ANCHOR_CENTER, FILL_BOTH, 1, 1, 1, 1);
+        addComponent(resultPanel, 0, 2, 2, 1, 100, 90, ANCHOR_CENTER, FILL_BOTH, 1, 1, 1, 1);
+        addComponent(copyStatusToClipboardButton, 0, 3, 1, 1, 10, 0, ANCHOR_CENTER, FILL_NONE, 5, 10, 5, 10);
+        addComponent(closeButton, 1, 3, 1, 1, 10, 0, ANCHOR_CENTER, FILL_NONE, 5, 10, 5, 10);
     }
 
 }

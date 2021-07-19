@@ -7,9 +7,13 @@ import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -147,6 +151,12 @@ public final class TraceabilityToolController implements ActionListener {
     private GuiAction closeExecutionFrameAction;
 
     /**
+     * The action associated with the "Copy to clipboard" button of the
+     * execution panel.
+     */
+    private GuiAction copyStatusToClipboardAction;
+
+    /**
      * The directory chooser.
      */
     private JFileChooser directoryChooser;
@@ -207,6 +217,8 @@ public final class TraceabilityToolController implements ActionListener {
 
         closeExecutionFrameAction = new GuiAction("Close", "Close the execution dialog", KeyEvent.VK_C);
 
+        copyStatusToClipboardAction = new GuiAction("Copy to clipboard", "Copy the result to clipboard", KeyEvent.VK_K);
+
         directoryChooser = null;
 
         toolFrame = null;
@@ -262,7 +274,8 @@ public final class TraceabilityToolController implements ActionListener {
 
             // Create the progress dialog if not existing yet
             if (toolProgressDialog == null) {
-                toolProgressDialog = new ToolExecutionFrame(toolFrame, closeExecutionFrameAction);
+                toolProgressDialog = new ToolExecutionFrame(toolFrame, closeExecutionFrameAction,
+                        copyStatusToClipboardAction);
             }
 
             // Make the main frame visible
@@ -467,6 +480,9 @@ public final class TraceabilityToolController implements ActionListener {
         } else if (pActionIdentifier == closeExecutionFrameAction.getActionIdentifier()) {
             // Hide the progress frame
             toolProgressDialog.setVisible(false);
+        } else if (pActionIdentifier == copyStatusToClipboardAction.getActionIdentifier()) {
+            // Copy the status to clipboard
+            copyStatusToClipboard();
         }
     }
 
@@ -627,6 +643,9 @@ public final class TraceabilityToolController implements ActionListener {
         // Prevent closing the execution dialog through the close button
         closeExecutionFrameAction.setEnabled(false);
 
+        // Prevent copying result to clipboard
+        copyStatusToClipboardAction.setEnabled(false);
+
         // Empty the previous result, if any
         toolProgressDialog.setExecutionResult("");
         // Show the progress frame
@@ -712,8 +731,9 @@ public final class TraceabilityToolController implements ActionListener {
                 }
             }
 
-            // Allow to close
+            // Allow to close and copy to clipboard
             closeExecutionFrameAction.setEnabled(true);
+            copyStatusToClipboardAction.setEnabled(true);
         }
     }
 
@@ -976,6 +996,99 @@ public final class TraceabilityToolController implements ActionListener {
 
             // Set the last selected directory as current directory
             getGitRepositoryDirectoryChooser().setCurrentDirectory(lSelectedDir);
+        }
+    }
+
+    /**
+     * Copy the status of last traceability status to clipboard.
+     */
+    private void copyStatusToClipboard() {
+        StringBuilder lStatusSb = new StringBuilder();
+
+        if (traceabilityManagerResult != null) {
+            TraceabilityManagerResultObject lTraceabilityManagerResult = traceabilityManagerResult.getExecutionResult();
+            if (traceabilityManagerResult.getCurrentExecutionStatus() == ExecutionStatus.ENDED_SUCCESS) {
+                if (lTraceabilityManagerResult == null) {
+                    lStatusSb.append("Ended successfully but no result obtained: "
+                            + traceabilityManagerResult.getExecutionStatusDescription());
+                } else {
+                    RequirementTestCovering lReqCovering = lTraceabilityManagerResult.getRequirementTestCovering();
+                    int lNbCoveringTestCases = lReqCovering.computeTotalTestCaseNumber();
+
+                    List<Requirement> lSdReqList = lTraceabilityManagerResult.getAllSdRequirements();
+                    int lNbReqs = lSdReqList.size();
+                    if (lNbReqs == 0) {
+                        lStatusSb.append("No requirement found!");
+                    } else {
+                        lStatusSb.append("Coverage matrix successfully updated with ");
+                        lStatusSb.append(lNbReqs);
+                        lStatusSb.append(" requirement");
+                        if (lNbReqs > 1) {
+                            lStatusSb.append("s");
+                        }
+                        lStatusSb.append(" from the SD, covered with ");
+                        lStatusSb.append(lNbCoveringTestCases);
+                        lStatusSb.append(" test cases.");
+
+                        // Check not covered requirements
+                        List<Requirement> lNotCoveredReqList = lTraceabilityManagerResult
+                                .getNotCoveredRequirementList();
+
+                        int lNbNotCoveredReqs = lNotCoveredReqList.size();
+                        if (lNbNotCoveredReqs > 0) {
+                            // List not covered requirements
+                            lStatusSb.append("\n");
+                            lStatusSb.append(lNbNotCoveredReqs);
+                            lStatusSb.append(" not covered requirement");
+                            if (lNbNotCoveredReqs > 1)
+                            {
+                                lStatusSb.append("s");
+                            }
+                            lStatusSb.append(":");
+                            for (Requirement lReq : lNotCoveredReqList) {
+                                lStatusSb.append("\n\t");
+                                lStatusSb.append(lReq.toString());
+                            }
+                        }
+
+                        // Handle the possible requirement duplication found in
+                        // SD file
+                        List<RequirementDuplicationItem> lDuplicatedRequirementItems = lTraceabilityManagerResult
+                                .getDuplicatedRequirements();
+                        int lNbDuplicatedReqs = lDuplicatedRequirementItems.size();
+                        if (lNbDuplicatedReqs > 0) {
+                            lStatusSb.append("\n");
+                            lStatusSb.append(lNbDuplicatedReqs);
+                            lStatusSb.append(" duplicated requirement");
+                            if (lNbDuplicatedReqs > 1) {
+                                lStatusSb.append("s");
+                            }
+                            lStatusSb.append(":");
+                            for (RequirementDuplicationItem lRequirementDuplicationItem : lDuplicatedRequirementItems) {
+                                lStatusSb.append("\n\t");
+                                lStatusSb.append(lRequirementDuplicationItem.getRequirement());
+                                lStatusSb.append(": ");
+                                lStatusSb.append(lRequirementDuplicationItem.getDuplicationDescription());
+                            }
+                        }
+                    }
+                }
+            } else if (traceabilityManagerResult.getCurrentExecutionStatus() == ExecutionStatus.ENDED_WITH_ERROR) {
+                lStatusSb.append("Excution ended with error:");
+                lStatusSb.append(traceabilityManagerResult.getExecutionStatusDescription());
+            }
+        }
+
+        // Copy to clipboard
+        try {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(new StringSelection(lStatusSb.toString()), null);
+        } catch (HeadlessException he) {
+            // Do nothing
+        } catch (IllegalStateException ise) {
+            // Display warning
+            JOptionPane.showMessageDialog(toolFrame, "Could not copy status to clipboard", "Warning",
+                    JOptionPane.WARNING_MESSAGE);
         }
     }
 
