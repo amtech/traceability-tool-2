@@ -284,7 +284,7 @@ public class CucumberTestCoverageAnalyser extends AbstractExecutor<CucumberTestC
     private void fillCucumberTestsFileDataFrom(final CucumberTestsFileData pAutomaticTestsFileData,
             final GherkinFeature pFeature,
             final AbstractGherkinScenarioOutlineOrTemplateElement pScenarioOutlineOrTemplate,
-            final List<GherkinStepGiven> pBackgroundSteps) {
+            final List<GherkinStepGiven> pBackgroundSteps) throws InvalidGherkinContentsException {
         // Gather all the steps
         List<AbstractGherkinStep> lSteps = new ArrayList<AbstractGherkinStep>();
 

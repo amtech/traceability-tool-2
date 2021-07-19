@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.tools.doc.traceability.common.Constants;
+import org.tools.doc.traceability.common.exceptions.InvalidGherkinContentsException;
 import org.tools.doc.traceability.common.gerkhin.model.general.AbstractGherkinStep;
 import org.tools.doc.traceability.common.gerkhin.model.general.GherkinStepType;
 
@@ -44,8 +45,11 @@ public class GherkinStepBreakdownManager {
      * 
      * @param pGherkinSteps the Gherkin steps to consider.
      * @return the result of the break down.
+     * @throws InvalidGherkinContentsException if an invalid Gherkin contents is
+     * found
      */
-    public TestingScenarioBreakdown breakDownSteps(final List<AbstractGherkinStep> pGherkinSteps) {
+    public TestingScenarioBreakdown breakDownSteps(final List<AbstractGherkinStep> pGherkinSteps)
+            throws InvalidGherkinContentsException {
         TestingScenarioBreakdown lTestingScenarioBreakdown = new TestingScenarioBreakdown();
 
         List<AbstractGherkinStep> lActionSteps = new ArrayList<AbstractGherkinStep>();
@@ -137,6 +141,17 @@ public class GherkinStepBreakdownManager {
                 lIsInActionPhase = true;
 
                 lActionSteps.add(lStep);
+            }
+        }
+
+        // Test if the action step contains an unexpected step
+        for (AbstractGherkinStep lStep : lActionSteps) {
+            Matcher lMatcher = reqStepPattern.matcher(lStep.getStepText());
+            if (lMatcher.matches()) {
+                throw new InvalidGherkinContentsException("Found a " + lStep.getStepType()
+                        + " step corresponding to a reference to a covered requirement at line "
+                        + lStep.getSourceFileLineNumber() + " that is not located after a "
+                        + GherkinStepType.Then.toString() + ".");
             }
         }
 
