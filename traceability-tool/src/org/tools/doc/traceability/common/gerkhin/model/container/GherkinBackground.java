@@ -3,29 +3,20 @@
  */
 package org.tools.doc.traceability.common.gerkhin.model.container;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.tools.doc.traceability.common.gerkhin.GherkinConstants;
-import org.tools.doc.traceability.common.gerkhin.model.general.AbstractGherkinContainerWithAdditionalCommentsElement;
-import org.tools.doc.traceability.common.gerkhin.model.step.GherkinStepGiven;
+import org.tools.doc.traceability.common.gerkhin.model.general.AbstractGherkinContainerWithAdditionalCommentsAndStepsElement;
 
 /**
  * Class modeling a Gherkin Background.
  * <p>
- * It has only Given steps.
+ * It has only Given steps along with potential And, But, Star steps.
  * </p>
  * 
  * @author Yann Leglise
  *
  */
-public class GherkinBackground extends AbstractGherkinContainerWithAdditionalCommentsElement {
+public class GherkinBackground extends AbstractGherkinContainerWithAdditionalCommentsAndStepsElement {
 
-    /**
-     * The list of Given steps.
-     */
-    private final List<GherkinStepGiven> givenSteps;
 
     /**
      * Constructor.
@@ -37,41 +28,5 @@ public class GherkinBackground extends AbstractGherkinContainerWithAdditionalCom
      */
     public GherkinBackground(final int pSourceFileLineNumber, final String pDescription) {
         super(GherkinConstants.BACKGROUND_KEYWORD, pSourceFileLineNumber, pDescription);
-        givenSteps = new ArrayList<GherkinStepGiven>();
-    }
-
-    /**
-     * Getter of the given steps.
-     * 
-     * @return the givenSteps
-     */
-    public List<GherkinStepGiven> getGivenSteps() {
-        return givenSteps;
-    }
-
-    /**
-     * Add a Given step.
-     * 
-     * @param pGivenStep the given step to add.
-     */
-    public void addGivenStep(final GherkinStepGiven pGivenStep) {
-        givenSteps.add(pGivenStep);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void printOn(final PrintStream pPrintStream, final int pIndentationLevel) {
-        // Add the container description
-        printIndented(getContainerLine(), pIndentationLevel, pPrintStream);
-
-        // Add the potential additional descriptions
-        printAdditionalDescriptionOn(pPrintStream, pIndentationLevel + 1);
-
-        // Print the Given steps
-        for (GherkinStepGiven lGiven : givenSteps) {
-            lGiven.printOn(pPrintStream, pIndentationLevel + 1);
-        }
     }
 }

@@ -1116,17 +1116,62 @@ public class GherkinParser {
                     break;
                 case Given:
                     // Add the Given element
-                    GherkinElementExtractionResult<GherkinStepGiven> lExtractedGiven = extractStepFrom(pGherkinLines,
-                            lIdx, lType);
-                    if (lExtractedGiven.wasElementExtracted()) {
+                    GherkinElementExtractionResult<GherkinStepGiven> lExtractedGivenResult = extractStepFrom(
+                            pGherkinLines, lIdx, lType);
+                    if (lExtractedGivenResult.wasElementExtracted()) {
                         // Add the Given element to the Background
-                        lBackground.addGivenStep(lExtractedGiven.getExtractedElement());
+                        lBackground.addStep(lExtractedGivenResult.getExtractedElement());
 
                         // Update the index of the last used line
-                        lIdx = lExtractedGiven.getLastLineIndex();
+                        lIdx = lExtractedGivenResult.getLastLineIndex();
                     } else {
                         throw new InvalidGherkinContentsException("Could not extract the "
                                 + GherkinConstants.GIVEN_KEYWORD + " from line " + lLine.getNormalizedRepresentation());
+                    }
+                    break;
+                case And:
+                    GherkinElementExtractionResult<GherkinStepAnd> lExtractedAndResult = extractStepFrom(pGherkinLines,
+                            lIdx, lType);
+                    if (lExtractedAndResult.wasElementExtracted()) {
+                        // Add the And step
+                        GherkinStepAnd lAnd = lExtractedAndResult.getExtractedElement();
+                        lBackground.addStep(lAnd);
+
+                        // Update the last line index
+                        lIdx = lExtractedAndResult.getLastLineIndex();
+                    } else {
+                        throw new InvalidGherkinContentsException("Could not extract the "
+                                + GherkinConstants.AND_KEYWORD + " from line " + lLine.getNormalizedRepresentation());
+                    }
+                    break;
+                case But:
+                    GherkinElementExtractionResult<GherkinStepBut> lExtractedButResult = extractStepFrom(pGherkinLines,
+                            lIdx, lType);
+                    if (lExtractedButResult.wasElementExtracted()) {
+                        // Add the But step
+                        GherkinStepBut lBut = lExtractedButResult.getExtractedElement();
+                        lBackground.addStep(lBut);
+
+                        // Update the last line index
+                        lIdx = lExtractedButResult.getLastLineIndex();
+                    } else {
+                        throw new InvalidGherkinContentsException("Could not extract the "
+                                + GherkinConstants.BUT_KEYWORD + " from line " + lLine.getNormalizedRepresentation());
+                    }
+                    break;
+                case Star:
+                    GherkinElementExtractionResult<GherkinStepStar> lExtractedStarResult = extractStepFrom(
+                            pGherkinLines, lIdx, lType);
+                    if (lExtractedStarResult.wasElementExtracted()) {
+                        // Add the Star step
+                        GherkinStepStar lStar = lExtractedStarResult.getExtractedElement();
+                        lBackground.addStep(lStar);
+
+                        // Update the last line index
+                        lIdx = lExtractedStarResult.getLastLineIndex();
+                    } else {
+                        throw new InvalidGherkinContentsException("Could not extract the "
+                                + GherkinConstants.STAR_KEYWORD + " from line " + lLine.getNormalizedRepresentation());
                     }
                     break;
 

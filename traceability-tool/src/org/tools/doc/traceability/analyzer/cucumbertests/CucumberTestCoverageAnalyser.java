@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.tools.doc.traceability.analyzer.cucumbertests.helper.GherkinStepBreakdownManager;
 import org.tools.doc.traceability.analyzer.cucumbertests.helper.TestingScenarioBreakdown;
 import org.tools.doc.traceability.analyzer.cucumbertests.helper.TestingScenarioPart;
@@ -38,7 +37,6 @@ import org.tools.doc.traceability.common.gerkhin.model.general.AbstractGherkinSc
 import org.tools.doc.traceability.common.gerkhin.model.general.AbstractGherkinStep;
 import org.tools.doc.traceability.common.gerkhin.model.general.GherkinDataTable;
 import org.tools.doc.traceability.common.gerkhin.model.general.GherkinDocString;
-import org.tools.doc.traceability.common.gerkhin.model.step.GherkinStepGiven;
 import org.tools.doc.traceability.common.model.Requirement;
 
 /**
@@ -200,10 +198,10 @@ public class CucumberTestCoverageAnalyser extends AbstractExecutor<CucumberTestC
 
         // Get the Given steps of the potential Background element that must
         // precede any step of further scenario
-        List<GherkinStepGiven> lBackgroundSteps = new ArrayList<GherkinStepGiven>();
+        List<AbstractGherkinStep> lBackgroundSteps = new ArrayList<AbstractGherkinStep>();
         if (pFeature.getBackground() != null) {
             GherkinBackground lBackground = pFeature.getBackground();
-            lBackgroundSteps.addAll(lBackground.getGivenSteps());
+            lBackgroundSteps.addAll(lBackground.getSteps());
         }
 
         List<AbstractGherkinExampleOrScenarioElement> lExampleOrScenarioList;
@@ -247,7 +245,7 @@ public class CucumberTestCoverageAnalyser extends AbstractExecutor<CucumberTestC
      */
     private void fillCucumberTestsFileDataFrom(final CucumberTestsFileData pAutomaticTestsFileData,
             final GherkinFeature pFeature, final AbstractGherkinExampleOrScenarioElement pExampleOrScenario,
-            final List<GherkinStepGiven> pBackgroundSteps) throws InvalidGherkinContentsException {
+            final List<AbstractGherkinStep> pBackgroundSteps) throws InvalidGherkinContentsException {
         // Gather all the steps
         List<AbstractGherkinStep> lSteps = new ArrayList<AbstractGherkinStep>();
 
@@ -284,7 +282,7 @@ public class CucumberTestCoverageAnalyser extends AbstractExecutor<CucumberTestC
     private void fillCucumberTestsFileDataFrom(final CucumberTestsFileData pAutomaticTestsFileData,
             final GherkinFeature pFeature,
             final AbstractGherkinScenarioOutlineOrTemplateElement pScenarioOutlineOrTemplate,
-            final List<GherkinStepGiven> pBackgroundSteps) throws InvalidGherkinContentsException {
+            final List<AbstractGherkinStep> pBackgroundSteps) throws InvalidGherkinContentsException {
         // Gather all the steps
         List<AbstractGherkinStep> lSteps = new ArrayList<AbstractGherkinStep>();
 
