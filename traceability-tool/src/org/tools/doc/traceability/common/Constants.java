@@ -20,7 +20,13 @@ public final class Constants {
      * Name of the log configuration file.
      */
     public static final String LOGGING_CONFIGURATION_FILENAME = "log4j2.xml";
-    
+
+    /**
+     * The text corresponding to one indentation level (mainly used for
+     * toString).
+     */
+    public static final String LEADING_INDENTATION_TEXT = "  ";
+
     /**
      * Number of the column in the tables of input document where the
      * requirement name is to be searched. For the first column, use 1.

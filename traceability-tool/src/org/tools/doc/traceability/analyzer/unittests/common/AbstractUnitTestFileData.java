@@ -6,6 +6,8 @@ package org.tools.doc.traceability.analyzer.unittests.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.tools.doc.traceability.common.Constants;
+
 /**
  * Class modeling the contents of a unit test file.
  * 
@@ -76,14 +78,19 @@ public abstract class AbstractUnitTestFileData {
      * 
      * @param pSringBuilder the string builder where to print the unit test data
      * list.
+     * @param leadingIndentLevel the leading indentation level.
      */
-    protected void printUnitTestCaseDataListOn(final StringBuilder pSringBuilder) {
+    protected void printUnitTestCaseDataListOn(final StringBuilder pSringBuilder, final int leadingIndentLevel) {
         int lIdx = 1;
         for (UnitTestCaseData lUtd : unitTestDataList) {
+            pSringBuilder.append('\n');
+            for (int i = 0; i < leadingIndentLevel; i++) {
+                pSringBuilder.append(Constants.LEADING_INDENTATION_TEXT);
+            }
             pSringBuilder.append("[");
             pSringBuilder.append(lIdx++);
             pSringBuilder.append("] : ");
-            pSringBuilder.append(lUtd);
+            lUtd.printUnitTestCaseDataOn(pSringBuilder, leadingIndentLevel + 1);
             pSringBuilder.append('\n');
         }
     }

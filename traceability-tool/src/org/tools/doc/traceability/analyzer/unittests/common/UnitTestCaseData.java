@@ -6,6 +6,7 @@ package org.tools.doc.traceability.analyzer.unittests.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.tools.doc.traceability.common.Constants;
 import org.tools.doc.traceability.common.model.Requirement;
 
 /**
@@ -139,27 +140,61 @@ public class UnitTestCaseData implements Comparable<UnitTestCaseData> {
      */
     @Override
     public String toString() {
-        StringBuilder lSb = new StringBuilder("UnitTestData [");
-        lSb.append(" ID=");
-        lSb.append(testCaseIdentifier);
-        lSb.append(", name=");
-        lSb.append(testCaseName);
-        lSb.append(", covered requirements=");
+        StringBuilder lSb = new StringBuilder("");
+        printUnitTestCaseDataOn(lSb, 0);
+        return lSb.toString();
+    }
+
+    /**
+     * Writes a description of this instance on the given string builder.
+     * 
+     * @param pSb the string builder where to write.
+     * @param leadingIndentLevel the leading indentation level.
+     */
+    public void printUnitTestCaseDataOn(final StringBuilder pSb, final int leadingIndentLevel) {
+        pSb.append('\n');
+        for (int i = 0; i < leadingIndentLevel; i++) {
+            pSb.append(Constants.LEADING_INDENTATION_TEXT);
+        }
+        pSb.append("UnitTestData\n");
+        for (int i = 0; i < leadingIndentLevel+1; i++) {
+            pSb.append(Constants.LEADING_INDENTATION_TEXT);
+        }
+        pSb.append("ID=");
+        pSb.append(testCaseIdentifier);
+        pSb.append('\n');
+        for (int i = 0; i < leadingIndentLevel+1; i++) {
+            pSb.append(Constants.LEADING_INDENTATION_TEXT);
+        }
+        pSb.append("name=");
+        pSb.append(testCaseName);
+        pSb.append('\n');
+        for (int i = 0; i < leadingIndentLevel+1; i++) {
+            pSb.append(Constants.LEADING_INDENTATION_TEXT);
+        }
+        pSb.append("covered requirements=");
         boolean lIsFirst = true;
         for (Requirement lReq : coveredRequirements) {
             if (lIsFirst) {
                 lIsFirst = false;
             } else {
-                lSb.append(", ");
+                pSb.append(", ");
             }
-            lSb.append(lReq.toString());
+            pSb.append(lReq.toString());
         }
-        lSb.append(", description=");
-        lSb.append(actionDescription);
-        lSb.append(", expected results=");
-        lSb.append(expectedResult);
-        lSb.append("]");
-        return lSb.toString();
+        pSb.append('\n');
+        for (int i = 0; i < leadingIndentLevel+1; i++) {
+            pSb.append(Constants.LEADING_INDENTATION_TEXT);
+        }
+        pSb.append("description=");
+        pSb.append(actionDescription);
+        pSb.append('\n');
+        for (int i = 0; i < leadingIndentLevel+1; i++) {
+            pSb.append(Constants.LEADING_INDENTATION_TEXT);
+        }
+        pSb.append("expected results=");
+        pSb.append(expectedResult);
+        pSb.append('\n');
     }
 
     /**

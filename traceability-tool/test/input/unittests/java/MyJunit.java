@@ -140,9 +140,40 @@ public class TraceabilityManagerTester extends AbstractTester {
 
 	// * The value for the airport.
 
+	 /**
+     * Test method for report and email generation when there are entries for both
+     * internal and external report.
+     * <p>
+     * Notes
+     * <dl>
+     * <dt>SD-AIM-UC-DDR-060</dt>
+     * <dd>Covered only partially (Only checks that exclusion works, but not that
+     * data from reference data is used.).</dd>
+     * <dt>SD-AIM-UC-DDR-170</dt>
+     * <dd>Presence of logo in email signature is not checked.</dd>
+     * </dl>
+     * </p>
+     *
+     * @testId "generateReportsWithEntriesForBothReports"
+     * @expectedResult "An email is sent for both internal and external recipients
+     *                 if there are entries for internal and external report"
+     * @coveredReqs "SD-AIM-UC-DDR-060, SD-AIM-UC-DDR-100, SD-AIM-UC-DDR-110,
+     *              SD-AIM-UC-DDR-140, SD-AIM-UC-DDR-150, SD-AIM-UC-DDR-160,
+     *              SD-AIM-UC-DDR-170, SD-AIM-UC-DDR-180, SD-AIM-UC-DDR-190"
+     */
+	@Test
+	void VTP_testFoo()
+	{
+	    
+	}
+	
 	/**
 	 * Checks that the transformation of an input xlsx file through template 4 complies with the expected requirements.
 	 *
+	 * <p>
+     * Tests the execution of traceability manager.
+     * </p>
+
 	 *  @testId "Import from template 4"
 	 *  @expectedResult "The imported obstacle are as expected as per the input data and the mapping of template 4"
 	 *  @coveredReqs "SD-OBS-BR-060, SD-OBS-BR-070"

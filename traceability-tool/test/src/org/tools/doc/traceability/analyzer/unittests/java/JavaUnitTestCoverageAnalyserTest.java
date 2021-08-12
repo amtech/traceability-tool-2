@@ -70,8 +70,9 @@ public class JavaUnitTestCoverageAnalyserTest extends AbstractTester {
                 ExecutionStatus.ENDED_SUCCESS, lExecutionStatus.getCurrentExecutionStatus());
 
         JavaUnitTestCoverageAnalyserResult lJavaTcaResult = lExecutionStatus.getExecutionResult();
-        Assert.assertEquals("The number of test count is not as expected", 2, lJavaTcaResult.getFoundTestCount());
+        Assert.assertEquals("The number of test count is not as expected", 3, lJavaTcaResult.getFoundTestCount());
 
+        System.out.println(lJavaTcaResult);
     }
 
 }

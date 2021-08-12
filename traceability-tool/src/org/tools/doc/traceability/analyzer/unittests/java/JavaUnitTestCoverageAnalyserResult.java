@@ -73,4 +73,24 @@ public class JavaUnitTestCoverageAnalyserResult extends AbtsractExecutionResultO
         }
         return lTestCount;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        StringBuilder lSb = new StringBuilder();
+        
+        lSb.append("Java unit test coverage analyser result with ");
+        
+        for (Map.Entry<File, JavaUnitTestFileData> lEntry : fileUnitTestDataMap.entrySet()) {
+            JavaUnitTestFileData lJavaUnitTestFileData = lEntry.getValue();
+            lSb.append("\n# File ");
+            lSb.append(lEntry.getKey().getAbsolutePath());
+            lSb.append(":\n");
+            lJavaUnitTestFileData.printJavaUnitTestFileDataOn(lSb, 1);
+        }
+        
+        return lSb.toString();
+    }
 }

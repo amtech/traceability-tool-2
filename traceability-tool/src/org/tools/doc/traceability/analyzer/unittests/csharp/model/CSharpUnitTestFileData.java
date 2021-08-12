@@ -45,7 +45,7 @@ public class CSharpUnitTestFileData extends AbstractUnitTestFileData {
         lSb.append("]  and ");
         lSb.append(getUnitTestDataList().size());
         lSb.append(" unit test data:");
-        printUnitTestCaseDataListOn(lSb);
+        printUnitTestCaseDataListOn(lSb, 1);
         return lSb.toString();
     }
 }

@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.tools.doc.traceability.analyzer.unittests.common.UnitTestCaseData;
 import org.tools.doc.traceability.analyzer.unittests.java.model.JUnitMethodData;
 import org.tools.doc.traceability.analyzer.unittests.java.model.JavaUnitTestFileData;
@@ -61,17 +60,17 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
      */
     private static final String JAVADOC_METHOD_REGEXP = //
             ".*?" // Anything (reluctant)
-                    + "\\/\\*\\*" // Opening javadoc comment
-                    + "(.+?)" // Contents of the javadoc comment (reluctant)
-                    + "\\*\\/" // Closing of javadoc comment
-                    + "[\\s\\n]*" // Further spaces and line returns
-                    + "@Test" // The JUnit annotation for testing method
-                    + "[\\s\\n]*" // Further spaces or line breaks
-                    + "(public\\s)?\\s*void\\s\\s*([A-Za-z_][A-Za-z0-9_]*)\\(\\s*\\)[^{]*"
-                    // Standard JUnit method signature
-                    + "\\{" // Opening method curly brace
-                    + "(.*)"; // Remaining part
-    
+            + "\\/\\*\\*" // Opening javadoc comment
+            + "(.+?)" // Contents of the javadoc comment (reluctant)
+            + "\\*\\/" // Closing of javadoc comment
+            + "[\\s\\n]*" // Further spaces and line returns
+            + "@Test" // The JUnit annotation for testing method
+            + "[\\s\\n]*" // Further spaces or line breaks
+            + "(public\\s)?\\s*void\\s\\s*([A-Za-z_][A-Za-z0-9_]*)\\(\\s*\\)[^{]*"
+            // Standard JUnit method signature
+            + "\\{" // Opening method curly brace
+            + "(.*)"; // Remaining part
+
     /**
      * Regexp to extract the useful part of a javadoc line, i.e. that gets rid
      * of leading spaces and star.
@@ -82,37 +81,32 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
     private static final String JAVADOC_LINE_ACTUAL_CONTENTS_REGEXP = "[\\s*]*(.*)";
 
     /**
-     * Regexp to match the description.
-     * <p>
-     * If it matches, the first group contains the description.
-     * </p>
-     */
-    private static final String DESCRIPTION_REGEXP = "(.*)@.*";
-
-    /**
      * Regexp to match the test identifier.
      * <p>
-     * If it matches, the first group contains the test identifier.
+     * If it matches, the first group contains test identifier part, and second
+     * group contains the test identifier itself.
      * </p>
      */
-    private static final String TEST_ID_REGEXP = ".*@testId\\s*\"([^\"]*)\".*";
+    private static final String TEST_ID_REGEXP = ".*(@testId\\s*\"([^\"]*)\").*";
 
     /**
      * Regexp to match the expected result.
      * <p>
      * If it matches, the first group contains the description of the expected
-     * result.
+     * result part, and second group contains the description of the expected
+     * result itself.
      * </p>
      */
-    private static final String EXPECTED_RESULT_REGEXP = ".*@expectedResult\\s*\"([^\"]*)\".*";
+    private static final String EXPECTED_RESULT_REGEXP = ".*(@expectedResult\\s*\"([^\"]*)\").*";
 
     /**
      * Regexp to match the covered requirements.
      * <p>
-     * If it matches, the first group contains the list of covered requirements.
+     * If it matches, the first group contains the list of covered requirements
+     * part, and second group contains the covered requirements themselves.
      * </p>
      */
-    private static final String COVERED_REQUIREMENTS_REGEXP = ".*@coveredReqs\\s*\"([^\"]*)\".*";
+    private static final String COVERED_REQUIREMENTS_REGEXP = ".*(@coveredReqs\\s*\"([^\"]*)\").*";
 
     /**
      * The set of java file search filter.
@@ -139,11 +133,6 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
      * The pattern to capture the useful part of a javadoc line.
      */
     private Pattern javadocLineActualContentsRegexp;
-
-    /**
-     * The pattern to match JUnit description.
-     */
-    private Pattern descriptionPattern;
 
     /**
      * The pattern to match the line giving the test identifier.
@@ -213,11 +202,10 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
 
         javadocMethodRegexp = Pattern.compile(JAVADOC_METHOD_REGEXP, Pattern.DOTALL);
         javadocLineActualContentsRegexp = Pattern.compile(JAVADOC_LINE_ACTUAL_CONTENTS_REGEXP);
-        descriptionPattern = Pattern.compile(DESCRIPTION_REGEXP, Pattern.DOTALL);
         testIdentifierLinePattern = Pattern.compile(TEST_ID_REGEXP, Pattern.DOTALL);
         expectedResultLinePattern = Pattern.compile(EXPECTED_RESULT_REGEXP, Pattern.DOTALL);
         coveredRequiermentsLinePattern = Pattern.compile(COVERED_REQUIREMENTS_REGEXP, Pattern.DOTALL);
-        coveredReqListPattern = Pattern.compile(Constants.COVERED_REQUIREMENT_LIST_REGEXP);
+        coveredReqListPattern = Pattern.compile(Constants.COVERED_REQUIREMENT_LIST_REGEXP, Pattern.DOTALL);
 
         // First search for the XML files
         FileSearcher lFileSearcher = new FileSearcher(javaFileSearchFilterSet);
@@ -378,6 +366,10 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
         String lExpectedResult = null;
         String lCoveredReqs = null;
 
+        String lTestIdPart = null;
+        String lExpectedResultPart = null;
+        String lCoveredReqsPart = null;
+
         // Combine the cleaned contents together
         StringBuilder lContentsSb = new StringBuilder();
         boolean lIsFirst = true;
@@ -393,24 +385,25 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
         String lJavadocContents = lContentsSb.toString();
         Matcher lTestIdentifierLineMatcher = testIdentifierLinePattern.matcher(lJavadocContents);
         if (lTestIdentifierLineMatcher.matches()) {
-            lTestId = lTestIdentifierLineMatcher.group(1);
+            lTestIdPart = lTestIdentifierLineMatcher.group(1);
+            lTestId = lTestIdentifierLineMatcher.group(2);
         }
 
         Matcher lExpectedResultLineMatcher = expectedResultLinePattern.matcher(lJavadocContents);
         if (lExpectedResultLineMatcher.matches()) {
-            lExpectedResult = lExpectedResultLineMatcher.group(1);
+            lExpectedResultPart = lExpectedResultLineMatcher.group(1);
+            lExpectedResult = lExpectedResultLineMatcher.group(2);
         }
 
         Matcher lCoveredReqsLineMatcher = coveredRequiermentsLinePattern.matcher(lJavadocContents);
         if (lCoveredReqsLineMatcher.matches()) {
-            lCoveredReqs = lCoveredReqsLineMatcher.group(1);
+            lCoveredReqsPart = lCoveredReqsLineMatcher.group(1);
+            lCoveredReqs = lCoveredReqsLineMatcher.group(2);
         }
-        ;
 
-        Matcher lDescriptionMatcher = descriptionPattern.matcher(lJavadocContents);
-        if (lDescriptionMatcher.matches()) {
-            lTestDescription = lDescriptionMatcher.group(1);
-        }
+        // Deduce the description part
+        lTestDescription = extractTestDescriptionFrom(lJavadocContents, lTestIdPart, lExpectedResultPart,
+                lCoveredReqsPart);
 
         lJUnitMethodData = new JUnitMethodData(pMethodName);
         lJUnitMethodData.setTestIdentifier(lTestId);
@@ -436,6 +429,58 @@ public class JavaUnitTestCoverageAnalyser extends AbstractExecutor<JavaUnitTestC
         }
 
         return lJUnitMethodData;
+    }
+
+    /**
+     * Extract the test description from the javadoc by removing the other parts
+     * (if any).
+     * 
+     * @param pJavadocContents the full extracted javadoc.
+     * @param pTestId the part corresponding to the test identifier description.
+     * @param pExpectedResult the part corresponding to the expected results.
+     * @param pCoveredReqs the part corresponding to the covered requirements.
+     * @return the part of the javadoc corresponding to the description.
+     */
+    private String extractTestDescriptionFrom(final String pJavadocContents, final String pTestId,
+            final String pExpectedResult, final String pCoveredReqs) {
+        String lExtractedTestDescription = pJavadocContents;
+
+        if ((pTestId != null) && (pTestId.length() > 0)) {
+            lExtractedTestDescription = removeFromString(lExtractedTestDescription, pTestId);
+            lExtractedTestDescription = removeFromString(lExtractedTestDescription, pExpectedResult);
+            lExtractedTestDescription = removeFromString(lExtractedTestDescription, pCoveredReqs);
+        }
+
+        return lExtractedTestDescription;
+    }
+
+    /**
+     * Removes the part to remove from the source string if found.
+     * 
+     * @param pSource the source string (must not be <tt>null</tt>).
+     * @param pPartToRemove the part to remove from the string.
+     * @return the source string without the part to remove, if found.
+     */
+    private String removeFromString(final String pSource, final String pPartToRemove) {
+        String lCleanedString = pSource;
+
+        if (pPartToRemove != null) {
+            int lSourceLength = pSource.length();
+            int lPartToRemoveLength = pPartToRemove.length();
+            if (lPartToRemoveLength > 0) {
+                int lIdxPartToRemove = pSource.indexOf(pPartToRemove);
+                if (lIdxPartToRemove != -1) {
+                    int lSecondPartStartIdx = lIdxPartToRemove + lPartToRemoveLength;
+                    if (lSecondPartStartIdx >= lSourceLength) {
+                        lSecondPartStartIdx = lSourceLength;
+                    }
+                    lCleanedString = lCleanedString.substring(0, lIdxPartToRemove - 1)
+                            + lCleanedString.substring(lSecondPartStartIdx);
+                }
+            }
+        }
+
+        return lCleanedString;
     }
 
     /**
